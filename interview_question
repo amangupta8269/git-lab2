@@ -1,0 +1,452 @@
+# Linux System Administrator Interview Preparation — L2 & L3
+
+Based on your background in Linux system administration, hosting environments, cPanel/WHM, Plesk, AWS, networking, Apache/Nginx, MySQL, and DevOps, you should prepare for scenario-based L2 and L3 Linux administrator interviews, not just basic Linux commands.
+
+L2 interviews generally focus on troubleshooting, administration, performance, and recovery. L3 interviews go deeper into root-cause analysis, architecture, advanced debugging, automation, and production incidents.
+
+Here is your topic-wise preparation roadmap, designed for Linux Administrator, Senior Linux Administrator, System Engineer, and Linux/Cloud Operations roles.
+
+## 1. Topic-wise interview roadmap
+
+1\. Linux fundamentals and advanced commands
+
+L2
+
+L3
+
+Process management, permissions, ACLs, links, file descriptors, pipes, signals, `find`, `awk`, `sed`, `xargs`, `strace`.
+
+2\. System boot, systemd and kernel
+
+L2
+
+L3
+
+GRUB, initramfs, targets, failed services, kernel modules, kernel panic, emergency mode, `sysctl`, `journalctl`.
+
+3\. Storage, partitions, LVM and filesystems
+
+L2
+
+L3
+
+LVM extension, XFS/ext4, inodes, UUIDs, `/etc/fstab`, multipath basics, disk latency, filesystem recovery.
+
+4\. Networking and DNS
+
+L2
+
+L3
+
+TCP/IP, routing, DNS resolution, ports, MTU, packet drops, `tcpdump`, `ss`, `ip`, firewalld, NAT.
+
+5\. Performance troubleshooting
+
+L2
+
+L3
+
+High CPU, memory pressure, swap, load average, I/O wait, OOM killer, `vmstat`, `iostat`, `sar`, `perf` basics.
+
+6\. Security and access management
+
+L2
+
+L3
+
+SSH hardening, sudo, SELinux, PAM, firewalld, auditd, failed login investigation, CVE patching, least privilege.
+
+7\. Apache, Nginx and hosting
+
+L2
+
+L3
+
+Virtual hosts, reverse proxy, TLS, PHP-FPM, 403/500/502/504 errors, connection limits, logs, cPanel/WHM and Plesk.
+
+8\. MySQL and Percona
+
+L2
+
+L3
+
+Replication, slow queries, locks, backups, InnoDB, binary logs, connection exhaustion, recovery and failover.
+
+9\. AWS, DevOps and automation
+
+L2
+
+L3
+
+EC2, EBS, snapshots, security groups, IAM, CloudWatch, Ansible, Bash, Docker, Kubernetes and CI/CD fundamentals.
+
+10\. Monitoring, logging, backup and disaster recovery
+
+L2
+
+L3
+
+ELK, Beats, log rotation, cron, system health checks, RPO/RTO, backup verification and incident response.
+
+## 2. Linux fundamentals and advanced commands
+
+### L2 interview questions
+
+1. What happens when you execute a Linux command from the terminal?
+2. Explain the Linux directory structure: `/etc`, `/var`, `/usr`, `/opt`, `/proc`, `/sys`, `/run` and `/tmp`.
+3. What is the difference between hard links and symbolic links?
+4. Explain `chmod`, `chown`, `umask`, SUID, SGID and sticky bit.
+5. What is the difference between `kill`, `kill -9`, `pkill` and `killall`?
+6. How do you find files larger than 1 GB and identify files modified in the last 24 hours?
+7. What are file descriptors, and how do you identify which process is holding a file open?
+8. What is the difference between `grep`, `awk`, `sed`, `cut`, `sort` and `xargs`?
+
+### L3 interview questions
+
+1. A file has been deleted, but disk usage has not decreased. How do you identify the process holding it open and safely reclaim space?
+2. How do you debug a process that hangs, consumes CPU continuously or makes unexpected system calls?
+3. Explain Linux process states: `R`, `S`, `D`, `T` and `Z`. How do you troubleshoot a process stuck in uninterruptible sleep?
+4. How would you investigate permission issues when standard `ls -l` permissions appear correct?
+5. Explain namespaces, cgroups, capabilities and how they affect process isolation.
+6. How do you use `strace`, `lsof`, `/proc/PID/`, and `gdb` during advanced troubleshooting?
+
+Practical commands to master: `ps`, `top`, `pgrep`, `lsof`, `fuser`, `find`, `stat`, `namei`, `strace`, `file`, `readlink`, `ulimit`.
+
+## 3. Boot process, systemd and kernel troubleshooting
+
+### L2 interview questions
+
+1. Explain the complete Linux boot process from BIOS/UEFI to the login prompt.
+2. What are GRUB2, initramfs and the Linux kernel?
+3. How do you troubleshoot a service that fails to start?
+4. What is the difference between `systemctl restart`, `reload`, `enable` and `start`?
+5. How do you check boot logs and identify services that delay boot?
+6. How do you change the default boot target to rescue or multi-user mode?
+
+### L3 interview questions
+
+1. A Linux server boots into emergency mode after a reboot. How would you recover it?
+2. A server fails to boot after a kernel update. How do you diagnose and roll back safely?
+3. How do you recover a server when the root filesystem cannot be mounted?
+4. How do you investigate a kernel panic or repeated unexpected reboots?
+5. Explain systemd unit dependencies, ordering, overrides and drop-in configuration files.
+6. How would you diagnose a service that starts successfully but stops working after a few minutes?
+
+Commands: `systemctl`, `journalctl -b`, `journalctl -u`, `systemd-analyze`, `dmesg`, `lsmod`, `modprobe`, `grubby`.
+
+## 4. Disk management, LVM and filesystems
+
+### L2 interview questions
+
+1. Explain partitions, physical volumes, volume groups and logical volumes.
+2. How do you extend an LVM logical volume online?
+3. What is the difference between XFS and ext4?
+4. How do you identify disk usage, inode usage and filesystem mount points?
+5. What is `/etc/fstab`, and how can an incorrect entry prevent boot?
+6. What is the difference between `df -h` and `du -sh`?
+7. How do you add a new disk and mount it permanently?
+
+### L3 interview questions
+
+1. `df -h` shows 100% usage, but `du -sh /*` does not explain the usage. What do you check?
+2. A filesystem has free disk space but cannot create new files. What could cause this?
+3. How do you extend an LVM volume and its filesystem without downtime?
+4. An XFS filesystem cannot mount after a crash. How do you investigate and recover it safely?
+5. How do you troubleshoot high disk latency, I/O wait and storage queue congestion?
+6. What precautions do you take when resizing root or production data volumes?
+
+Commands: `lsblk`, `blkid`, `fdisk`, `parted`, `pvs`, `vgs`, `lvs`, `pvcreate`, `vgextend`, `lvextend`, `xfs_growfs`, `resize2fs`, `iostat`.
+
+Remember: extending a filesystem and shrinking it are different operations. XFS cannot be shrunk in place; never run filesystem repair commands on a mounted read-write filesystem.
+
+## 5. Networking, TCP/IP and DNS
+
+### L2 interview questions
+
+1. Explain the TCP three-way handshake.
+2. What is the difference between TCP and UDP?
+3. Explain private IPs, public IPs, subnet masks, gateways and CIDR.
+4. What is the difference between DNS A, AAAA, CNAME, MX, NS, TXT and PTR records?
+5. How do you identify which process is listening on port 80, 443 or 3306?
+6. How do you troubleshoot a server that is reachable by IP but not by hostname?
+7. Explain firewalld zones, services and ports.
+8. What is the difference between `ping`, `traceroute`, `curl`, `dig` and `nc`?
+
+### L3 interview questions
+
+1. A server can ping its gateway but cannot reach external websites. How do you isolate the problem?
+2. A website works from the server itself but times out externally. How do you trace the packet path?
+3. How do you diagnose intermittent packet loss or TCP retransmissions?
+4. What is MTU, and how can an MTU mismatch cause connectivity issues?
+5. Explain connection states such as `LISTEN`, `ESTABLISHED`, `TIME_WAIT`, `CLOSE_WAIT` and `SYN-SENT`.
+6. How do you investigate port exhaustion, connection backlog issues and a large number of `TIME_WAIT` sockets?
+7. How would you troubleshoot asymmetric routing or a firewall dropping packets silently?
+
+Commands: `ip addr`, `ip route`, `ip neigh`, `ss -lntup`, `tcpdump`, `dig`, `resolvectl`, `curl -v`, `tracepath`, `nft`, `firewall-cmd`.
+
+## 6. CPU, memory and performance troubleshooting
+
+### L2 interview questions
+
+1. What is load average, and how does it differ from CPU utilization?
+2. How do you find the process consuming the most CPU or memory?
+3. Explain RAM, cache, buffers, swap and virtual memory.
+4. What is the OOM killer, and how do you identify whether it killed a process?
+5. What is I/O wait, and how do you identify disk-related bottlenecks?
+6. How do you check CPU, memory and disk utilization over time?
+
+### L3 interview questions
+
+1. A server has a load average of 30 on an 8-vCPU machine. How do you investigate the cause?
+2. CPU utilization is low, but the application is extremely slow. What do you investigate?
+3. Memory utilization is 95%, but the server has not started swapping. Is that necessarily a problem?
+4. A process's memory usage grows continuously. How do you distinguish a memory leak from normal caching?
+5. How do you diagnose processes stuck in the `D` state?
+6. How do you use historical monitoring data to identify recurring performance degradation?
+7. Explain CPU affinity, NUMA basics, context switching and process scheduling at a troubleshooting level.
+
+Commands: `top`, `htop`, `free -h`, `vmstat`, `iostat`, `sar`, `pidstat`, `ps`, `dmesg`, `journalctl -k`.
+
+## 7. Linux security and access management
+
+### L2 interview questions
+
+1. How do you configure SSH key-based authentication?
+2. How do you disable direct root SSH login safely?
+3. What is the difference between `sudo` and `su`?
+4. Explain SELinux enforcing, permissive and disabled modes.
+5. How do you troubleshoot SELinux permission denials?
+6. How do you audit failed login attempts and suspicious user activity?
+
+### L3 interview questions
+
+1. An application works when SELinux is permissive but fails when enforcing. How do you find the exact denial and fix it without disabling SELinux?
+2. How would you investigate a suspected compromised Linux server?
+3. How do you implement least privilege for service accounts and administrators?
+4. Explain PAM, `auditd`, file capabilities and SSH security hardening.
+5. How do you patch production servers while minimizing downtime and risk?
+6. How would you investigate unauthorized changes to critical configuration files?
+
+Commands: `ausearch`, `aureport`, `auditctl`, `getenforce`, `semanage`, `restorecon`, `sshd -t`, `last`, `lastb`, `faillock`.
+
+## 8. Apache, Nginx, PHP and web hosting
+
+This is one of your highest-priority sections because of your hosting administration experience with cPanel/WHM, Plesk, Apache, Nginx and PHP.
+
+### L2 interview questions
+
+1. Explain the difference between Apache prefork, worker and event MPM.
+2. What is the difference between Apache and Nginx?
+3. How do you configure name-based virtual hosting?
+4. How do you configure an SSL certificate using Let's Encrypt?
+5. How do you troubleshoot HTTP 403, 404, 500, 502 and 504 errors?
+6. Explain Apache access logs and error logs.
+7. How do you configure PHP-FPM with Apache or Nginx?
+8. How do you troubleshoot a website that shows a blank page or downloads a PHP file instead of executing it?
+9. How do you configure reverse proxying for a Node.js application?
+10. How do you identify which process is consuming resources when multiple websites run on the same server?
+
+### L3 interview questions
+
+1. A website returns HTTP 502 intermittently. How do you identify whether the issue is PHP-FPM, the application, Apache/Nginx or the database?
+2. A server hosts 500 websites, and one website causes high CPU usage. How do you isolate the affected account?
+3. How do you tune Apache MPM and PHP-FPM for high concurrency without exhausting RAM?
+4. How do you troubleshoot TLS handshake failures, certificate chain errors and SNI problems?
+5. How do you investigate slow PHP requests and long-running database queries?
+6. How do you troubleshoot a WordPress website affected by malware, malicious redirects or repeated PHP errors?
+7. Explain graceful reloads, connection draining and zero- or minimal-downtime web server configuration changes.
+8. How would you design a hosting environment with a load balancer, multiple web servers and a shared or replicated database?
+
+Commands: `apachectl -t`, `apachectl -M`, `nginx -t`, `nginx -T`, `php-fpm -tt`, `curl -I`, `curl -v`, `openssl s_client`, `tail -f`, `journalctl`.
+
+## 9. cPanel/WHM, Plesk, email and hosting operations
+
+### L2 interview questions
+
+1. How do you create and migrate hosting accounts in cPanel/WHM?
+2. How do you troubleshoot a website that works using the server IP but not the domain?
+3. How do you investigate email delivery failures in Exim?
+4. What is the difference between SPF, DKIM and DMARC?
+5. How do you investigate high disk usage for an individual hosting account?
+6. How do you renew SSL certificates and diagnose AutoSSL failures?
+7. How do you troubleshoot PHP version and extension issues for a particular domain?
+8. How do you investigate DNS propagation and mail routing problems?
+
+### L3 interview questions
+
+1. A shared hosting server's outbound IP is blacklisted. How do you identify the source and mitigate the problem?
+2. An email queue contains thousands of messages. How do you determine whether the cause is a compromised account, a script or a remote mail server?
+3. How do you migrate a large hosting account between cPanel and Plesk while minimizing downtime?
+4. How do you investigate a compromised WordPress account without disrupting unrelated customer websites?
+5. How do you prevent one hosting account from exhausting CPU, RAM, disk I/O or process limits?
+6. How would you build a repeatable incident response procedure for a multi-tenant hosting platform?
+
+Important: Learn the relevant panel-specific commands and log paths for the versions you administer. cPanel and Plesk use different service management, configuration and migration workflows.
+
+## 10. MySQL and Percona database administration
+
+### L2 interview questions
+
+1. Explain MySQL architecture, InnoDB, buffer pool and binary logs.
+2. How do you identify active queries and long-running transactions?
+3. How do you troubleshoot MySQL connection exhaustion?
+4. How do you configure MySQL master-replica replication?
+5. What is the difference between logical and physical backups?
+6. How do you investigate a slow query using the slow query log and `EXPLAIN`?
+7. How do you troubleshoot MySQL startup failures?
+8. How do you check database size, table size and disk usage?
+
+### L3 interview questions
+
+1. MySQL replication is stopped, and the replica is several hours behind. How do you identify the cause and recover safely?
+2. A database has high CPU usage, but disk I/O is normal. What do you investigate?
+3. How do you diagnose deadlocks, lock waits and long-running transactions?
+4. How would you recover a database after accidental deletion of rows using backups and binary logs?
+5. How do you plan MySQL failover while protecting data consistency?
+6. How do you tune the InnoDB buffer pool and connection settings based on actual workload and available memory?
+7. How do you investigate database corruption and decide between recovery, restore and rebuild?
+
+Commands and SQL: `mysql`, `SHOW PROCESSLIST`, `SHOW ENGINE INNODB STATUS`, `SHOW REPLICA STATUS`, `EXPLAIN`, `mysqldump`, `mysqlbinlog`, `iostat`.
+
+## 11. Bash scripting, cron and Ansible
+
+### L2 interview questions
+
+1. Write a script to check CPU, memory and disk utilization.
+2. How do you rotate and compress log files older than a defined size or age?
+3. How do you schedule a script using cron and troubleshoot when it does not run?
+4. Explain exit codes, `set -e`, `set -u` and `pipefail`.
+5. How do you process a log file and extract the most frequent client IP addresses?
+6. How do you execute commands on multiple Linux servers using SSH?
+
+### L3 interview questions
+
+1. How would you create an idempotent script to provision users, packages, directories and services?
+2. How do you design a safe automated log cleanup that never deletes files currently being written?
+3. How do you handle script failures, retries, locking, timeouts and notifications?
+4. How do you use Ansible inventory, roles, handlers, templates, variables and Vault?
+5. How do you roll out a configuration change to 200 servers while limiting the blast radius?
+6. How do you make a deployment reversible if the health check fails?
+7. How would you build automated compliance checks for SSH configuration, package versions and filesystem capacity?
+
+Commands and concepts: Bash functions, traps, `flock`, `getopts`, `jq`, cron, systemd timers, Ansible playbooks, handlers, tags, check mode and rolling batches.
+
+## 12. AWS and cloud infrastructure
+
+### L2 interview questions
+
+1. How do you troubleshoot an EC2 instance that is unreachable over SSH?
+2. Explain security groups versus network ACLs.
+3. How do you expand an EBS volume and the filesystem on a Linux server?
+4. What is the difference between an AMI, an EBS snapshot and an instance?
+5. How do you monitor Linux CPU, memory and disk metrics using CloudWatch?
+6. How do you troubleshoot an application that is reachable locally but inaccessible through an AWS load balancer?
+7. What is the difference between an IAM role and an IAM user?
+
+### L3 interview questions
+
+1. An EC2 instance is running but fails SSH access. How do you distinguish an OS failure, routing issue, security group issue and SSH daemon failure?
+2. How would you design a highly available web application across multiple Availability Zones?
+3. How do you investigate an unexpected AWS bill caused by data transfer or storage?
+4. How do you design backup, restore and disaster recovery for EC2 and EBS?
+5. How do you securely provide AWS credentials to applications running on EC2?
+6. How do you troubleshoot latency between an application server and a database in a private subnet?
+7. How would you implement infrastructure as code and configuration management for repeatable server builds?
+
+## 13. Monitoring, ELK, backup and disaster recovery
+
+### L2 interview questions
+
+1. How do you monitor Linux CPU, RAM, disk, network and service availability?
+2. Explain the ELK stack: Elasticsearch, Logstash and Kibana.
+3. What is the role of Beats in log collection?
+4. How do you configure log rotation and prevent logs from filling the root filesystem?
+5. How do you troubleshoot a missing log stream in Kibana?
+6. What is the difference between a backup, a snapshot and replication?
+7. How do you validate that a backup is restorable?
+
+### L3 interview questions
+
+1. Elasticsearch disk usage is high, and the cluster is unhealthy. How do you investigate shards, allocation and retention?
+2. Log ingestion has stopped, but the application is still generating logs. How do you isolate the issue across Beats, Logstash, Kafka and Elasticsearch?
+3. How do you design alerting to reduce false positives while catching genuine incidents?
+4. How do you build a central logging platform for multiple production servers?
+5. Explain RPO, RTO, business continuity and disaster recovery testing.
+6. How do you investigate a production outage using logs, metrics and timestamps across multiple systems?
+7. How would you prevent monitoring and logging failures from going unnoticed?
+
+## 14. Docker, Kubernetes and DevOps fundamentals
+
+### L2 interview questions
+
+1. What is the difference between a Docker image and a container?
+2. How do you troubleshoot a container that repeatedly restarts?
+3. How do Docker volumes and container networking work?
+4. What are Kubernetes Pods, Deployments, Services and ConfigMaps?
+5. How do you troubleshoot `CrashLoopBackOff`, `ImagePullBackOff` and a Pod stuck in `Pending`?
+6. What is the difference between a readiness probe and a liveness probe?
+
+### L3 interview questions
+
+1. A Kubernetes service is not reachable even though its Pods are running. How do you troubleshoot selectors, endpoints, network policies and DNS?
+2. How do you troubleshoot a container terminated with exit code 137?
+3. How do CPU and memory requests and limits affect scheduling and runtime behavior?
+4. How would you implement rolling deployments and rollback strategies?
+5. How do you secure container images, secrets, service accounts and cluster access?
+6. How do you diagnose node-level issues affecting multiple Kubernetes workloads?
+
+## 15. Production troubleshooting scenarios — essential for L2/L3
+
+These questions are especially important because interviewers often assess your troubleshooting process rather than your ability to remember commands.
+
+Select a scenario to practice answering as if you were in a technical interview.
+
+1\. Root filesystem is 100% fullL2
+
+A production Linux server's root filesystem is 100% full. What do you check first, how do you find the cause, and how do you recover safely?
+
+Points your answer should cover
+
+Check df -hT and df -i
+
+Check du, deleted-open files and logs
+
+Identify the owning process or service
+
+Restore safe disk headroom and prevent recurrence
+
+Practice this scenario
+
+2\. Server is slow after deploymentL2/L33. Website returns HTTP 502L24. SSH access is unavailableL2/L35. Memory usage keeps increasingL36. MySQL replication has stoppedL2/L37. Server fails after rebootL38. Email queue suddenly increasesL2/L3
+
+## 16. How to prepare for L2/L3 interviews in 30 days
+
+## Days 1–7
+
+Linux core and storage
+
+Revise advanced commands, permissions, systemd, boot recovery, LVM, filesystems and disk troubleshooting. Perform the exercises on a test VM.
+
+## Days 8–14
+
+Networking and performance
+
+Practice DNS failures, TCP connections, firewalld, high load, memory pressure, packet captures and service troubleshooting.
+
+## Days 15–21
+
+Production applications and hosting
+
+Revise Apache/Nginx, PHP-FPM, TLS, cPanel/WHM, Plesk, MySQL replication, email troubleshooting and ELK.
+
+## Days 22–30
+
+L3 scenarios and mock interviews
+
+Practice root-cause analysis, Bash/Ansible automation, AWS recovery, disaster recovery, incident reports and architecture discussions.
+
+My recommendation is to prioritize Linux troubleshooting, networking, storage, performance, Apache/Nginx, MySQL and hosting incidents first. Then strengthen automation, AWS and advanced architecture to demonstrate L3-level skills.
+
+Interview tip: For each scenario, explain the symptoms, commands you would run, how you interpret the output, the root cause, the recovery steps and the preventive action. Avoid jumping straight to restarting a service or rebooting a production server.
+
+To tailor the next set of questions to your target role, you can add a few preferences below.
