@@ -1,0 +1,1371 @@
+# Complete Linux, Networking & DevOps Interview Question Bank
+
+This question bank is structured for Linux System Administrator, Cloud Administrator, DevOps Engineer, and Site Reliability Engineer (SRE) interview preparation. It progresses from basic concepts to production-level troubleshooting, with practical Linux commands, configuration examples, and real-world scenarios.
+
+The goal is to help you understand not just what a command does, but when to use it, how to troubleshoot failures, and why a particular solution works.
+
+## Learning roadmap
+
+1\. Linux Administration
+
+Shell, filesystem, users, permissions, processes, systemd, storage, logs, security, performance, and recovery.
+
+2\. Networking
+
+OSI/TCP-IP, IP addressing, subnetting, DNS, routing, VLANs, firewalls, VPNs, TLS, packet analysis, and load balancing.
+
+3\. Web Servers & Databases
+
+Apache, Nginx, PHP, MySQL, reverse proxies, SSL certificates, replication, and production troubleshooting.
+
+4\. Cloud & Infrastructure
+
+AWS, IAM, EC2, VPC, storage, load balancers, high availability, backups, and disaster recovery.
+
+5\. DevOps & Automation
+
+Git, Bash, Python, Ansible, Docker, Kubernetes, CI/CD, Terraform, monitoring, observability, and incident response.
+
+## Difficulty levels
+
+-
+
+  Beginner
+
+  &#x20;Fundamentals, definitions, and basic commands.
+
+
+-
+
+  Intermediate
+
+  &#x20;Configuration, administration, and routine troubleshooting.
+
+
+-
+
+  Advanced
+
+  &#x20;Complex failures, security, automation, and architecture.
+
+
+-
+
+  Expert
+
+  &#x20;Production incidents, scale, performance, and root-cause analysis.
+
+
+
+# Part 1 — Linux Administration
+
+## Topic 1. Linux fundamentals and architecture
+
+### Beginner
+
+Q1. What is Linux, and what is the difference between the kernel and the operating system?
+
+- Kernel: manages CPU, memory, devices, processes, and system calls.
+- Operating system: includes the kernel, libraries, utilities, services, and applications.
+
+Practical commands:
+
+```
+uname -r
+uname -a
+cat /etc/os-release
+hostnamectl
+```
+
+Q2. What is the difference between a Linux distribution and a Linux kernel?
+
+A distribution packages the kernel with system tools and a package manager. Ubuntu, Debian, RHEL, Rocky Linux, and AlmaLinux are examples.
+
+```
+cat /etc/os-release
+uname -r
+```
+
+Q3. What are the important Linux directories?
+
+| Directory  | Purpose                        |
+| ---------- | ------------------------------ |
+| `/etc`     | System configuration           |
+| `/var/log` | Logs                           |
+| `/home`    | User home directories          |
+| `/root`    | Root user's home               |
+| `/tmp`     | Temporary files                |
+| `/usr/bin` | User commands                  |
+| `/var/www` | Common web content location    |
+| `/boot`    | Boot-related files             |
+| `/dev`     | Device files                   |
+| `/proc`    | Process and kernel information |
+| `/sys`     | Kernel and device information  |
+
+Q4. How do you check the system's uptime, hostname, and current date?
+
+```
+uptime
+hostnamectl
+date
+timedatectl
+```
+
+### Intermediate
+
+Q5. What happens when a Linux server boots?
+
+Explain the sequence: firmware → bootloader (usually GRUB) → kernel and initramfs → systemd → services and login.
+
+```
+systemctl get-default
+systemctl list-units --type=target
+journalctl -b
+```
+
+Q6. What is systemd, and how is it different from SysVinit?
+
+Systemd manages services, dependencies, targets, and system startup. SysVinit traditionally uses ordered init scripts and runlevels.
+
+```
+systemctl status ssh
+systemctl enable ssh
+systemctl list-dependencies multi-user.target
+```
+
+Note: On RHEL-family systems, the SSH service is usually called `sshd`; on Ubuntu, it is commonly `ssh`.
+
+### Advanced
+
+Q7. A server boots but stops at emergency mode. How do you troubleshoot it?
+
+Investigate filesystem errors, incorrect `/etc/fstab` entries, unavailable disks, and failed mounts.
+
+```
+systemctl --failed
+journalctl -xb
+findmnt --verify
+cat /etc/fstab
+lsblk -f
+```
+
+Q8. How would you investigate a kernel panic or failed boot after a kernel update?
+
+```
+uname -r
+journalctl -k -b
+journalctl -k -b -1
+grubby --default-kernel
+```
+
+The last command is commonly available on RHEL-family systems. On Ubuntu, inspect GRUB configuration and installed kernels using distribution-specific tools.
+
+### Expert
+
+Q9. A production server becomes unresponsive immediately after boot. How do you isolate whether the problem is the kernel, storage, memory, or a service?
+
+Discuss console access, recovery or rescue mode, previous-boot logs, filesystem checks, kernel selection, and isolating failed units.
+
+Q10. Explain the difference between a kernel-space problem and a user-space problem. How would you distinguish them during a production outage?
+
+Discuss kernel logs, system calls, process state, device drivers, service logs, and whether the kernel still schedules processes.
+
+## Topic 2. Linux commands, shell, and text processing
+
+### Beginner
+
+Q1. How do you list files, including hidden files, with permissions and ownership?
+
+```
+ls -lah
+pwd
+file filename
+stat filename
+```
+
+Q2. How do you search for a string inside a file?
+
+```
+grep "ERROR" /var/log/syslog
+grep -in "failed" /var/log/auth.log
+```
+
+Ubuntu and RHEL systems may use different log filenames.
+
+Q3. How do you find files by name?
+
+```
+find /var/log -type f -name "*.log"
+find /home -type f -iname "*.conf"
+```
+
+Q4. What are pipes and redirections?
+
+```
+command > output.txt
+command >> output.txt
+command 2> error.txt
+command > output.txt 2>&1
+cat file.txt | grep "error"
+```
+
+`>` overwrites, `>>` appends, and `2>` redirects standard error.
+
+### Intermediate
+
+Q5. How do you find the 10 largest files in a directory?
+
+```
+find /var -type f -printf '%s %p\n' 2>/dev/null |
+sort -nr | head -10
+```
+
+Q6. How do you count HTTP 500 responses in an access log?
+
+```
+awk '$9 == 500 {count++} END {print count+0}' access.log
+```
+
+This assumes the HTTP status is in field 9, as in many standard combined access log formats.
+
+Q7. How do you extract unique IP addresses from an access log?
+
+For a standard access log with the client IP in the first field:
+
+```
+awk '{print $1}' access.log | sort | uniq -c | sort -nr | head
+```
+
+Q8. Explain `grep`, `awk`, `sed`, `cut`, `sort`, and `uniq`.
+
+Give one practical example for each and explain when you would use them to analyze logs.
+
+### Advanced
+
+Q9. How would you process a 20 GB log file without loading it into memory?
+
+Use streaming tools such as `grep`, `awk`, `sed`, and `sort` with appropriate temporary storage. Avoid reading the entire file into a shell variable or a memory-heavy script.
+
+Q10. How do you identify which process is generating the most log output?
+
+```
+du -sh /var/log/*
+lsof +L1
+journalctl --disk-usage
+```
+
+These commands identify large log directories, open-but-deleted files, and journal disk usage. Process-level attribution may require `lsof`, audit rules, or application-specific analysis.
+
+### Expert
+
+Q11. A shell pipeline reports success even though an earlier command failed. Why?
+
+Explain pipeline exit status and `pipefail`.
+
+```
+set -o pipefail
+grep "ERROR" app.log | sort | uniq
+echo "$?"
+```
+
+Q12. Write a script that finds files larger than 1 GB, logs the results, handles permission errors, and returns a meaningful exit status.
+
+Discuss quoting, error handling, exit codes, logging, and avoiding unsafe parsing of filenames.
+
+## Topic 3. Users, groups, sudo, and permissions
+
+### Beginner
+
+Q1. How do you create a user and set a password?
+
+```
+useradd -m aman
+passwd aman
+id aman
+```
+
+Q2. How do you create a group and add a user to it?
+
+```
+groupadd developers
+usermod -aG developers aman
+id aman
+```
+
+Q3. Explain `rwx` permissions and the numeric values 4, 2, and 1.
+
+- Read = 4
+- Write = 2
+- Execute = 1
+
+```
+chmod 640 file.txt
+chmod 750 script.sh
+chown aman:developers file.txt
+```
+
+Q4. What is the difference between `chmod`, `chown`, and `chgrp`?
+
+Explain permission changes, ownership changes, and group ownership changes.
+
+### Intermediate
+
+Q5. What are SUID, SGID, and the sticky bit?
+
+```
+chmod u+s program
+chmod g+s shared_directory
+chmod +t shared_directory
+ls -ld shared_directory
+```
+
+Understand the security implications before setting these bits on production files.
+
+Q6. What is the difference between a hard link and a symbolic link?
+
+```
+ln original.txt hardlink.txt
+ln -s original.txt symlink.txt
+ls -li original.txt hardlink.txt symlink.txt
+```
+
+Q7. How do you configure sudo access for a specific command?
+
+```
+visudo -f /etc/sudoers.d/operations
+```
+
+Example policy:
+
+```
+aman ALL=(root) /usr/bin/systemctl status nginx
+```
+
+Validate the command's actual path and arguments, and avoid granting unrestricted shell access indirectly.
+
+### Advanced
+
+Q8. A user can access a directory but cannot read a file inside it. How do you troubleshoot?
+
+```
+namei -l /path/to/file
+getfacl /path/to/file
+ls -ld /path /path/to/file
+id username
+```
+
+Check directory traversal permissions, ACLs, ownership, and SELinux or AppArmor restrictions where applicable.
+
+Q9. How do ACLs differ from standard Unix permissions?
+
+```
+setfacl -m u:aman:rw file.txt
+getfacl file.txt
+setfacl -x u:aman file.txt
+```
+
+Q10. How would you investigate repeated SSH login failures for one account?
+
+```
+last
+lastb
+faillock --user aman
+journalctl -u ssh --since today
+```
+
+`faillock` availability depends on the authentication configuration. Ubuntu commonly logs SSH events through journald and/or `/var/log/auth.log`.
+
+### Expert
+
+Q11. A service works when started manually but fails under its service account. How do you isolate the permission problem?
+
+Inspect the service's `User=`, `Group=`, supplementary groups, directory traversal permissions, environment variables, credentials, and mandatory access control logs.
+
+Q12. How would you implement least-privilege access for a team managing web servers?
+
+Discuss dedicated accounts, groups, command-restricted sudo, SSH key authentication, centralized identity, audit logs, and periodic access reviews.
+
+## Topic 4. Processes, systemd, and services
+
+### Beginner
+
+Q1. How do you view running processes?
+
+```
+ps aux
+top
+pgrep -a nginx
+```
+
+Q2. How do you stop a process?
+
+```
+kill -TERM PID
+kill -KILL PID
+```
+
+Prefer `SIGTERM` first. Use `SIGKILL` only when necessary because it prevents normal cleanup.
+
+Q3. How do you check whether a service is running?
+
+```
+systemctl status nginx
+systemctl is-active nginx
+systemctl is-enabled nginx
+```
+
+### Intermediate
+
+Q4. How do you enable a service at boot and restart it?
+
+```
+systemctl enable --now nginx
+systemctl restart nginx
+systemctl reload nginx
+```
+
+A reload applies supported configuration changes without a full service restart.
+
+Q5. How do you inspect a service's logs?
+
+```
+journalctl -u nginx -n 100 --no-pager
+journalctl -u nginx -f
+systemctl --failed
+```
+
+Q6. How do you create a custom systemd service?
+
+Example: `/etc/systemd/system/example.service`
+
+```
+[Unit]
+Description=Example Application
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/example-app
+Restart=on-failure
+User=example
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then:
+
+```
+systemctl daemon-reload
+systemctl enable --now example.service
+systemctl status example.service
+```
+
+The `example` user and executable must exist, and `ExecStart` must use the correct command.
+
+### Advanced
+
+Q7. A service repeatedly crashes and restarts. How do you troubleshoot it?
+
+```
+systemctl status example.service
+journalctl -u example.service -b
+systemctl show example.service
+coredumpctl list
+```
+
+Investigate exit codes, resource limits, configuration errors, dependencies, and crash dumps.
+
+Q8. What are zombie and orphan processes?
+
+Explain parent-child relationships, process reaping, and why a zombie is not the same as a process consuming CPU.
+
+```
+ps -eo pid,ppid,stat,cmd | awk '$3 ~ /Z/'
+pstree -p
+```
+
+### Expert
+
+Q9. How would you configure a service to restart after failure without creating an infinite restart loop?
+
+Discuss `Restart=`, `RestartSec=`, `StartLimitIntervalSec=`, `StartLimitBurst=`, readiness checks, and application-level failure behavior.
+
+Q10. A service starts successfully but becomes unavailable after several hours. What would you inspect?
+
+Check memory growth, file descriptor exhaustion, connection limits, application logs, dependency failures, timeouts, and system resource pressure.
+
+## Topic 5. Storage, filesystems, LVM, and disk management
+
+### Beginner
+
+Q1. How do you check disk space and inode utilization?
+
+```
+df -hT
+df -ih
+lsblk -f
+```
+
+Q2. What is the difference between a disk, partition, filesystem, and mount point?
+
+Explain the storage hierarchy and why a partition does not become accessible as a directory until it is mounted.
+
+Q3. How do you find which directories are consuming disk space?
+
+```
+du -xhd1 /var
+du -sh /var/log
+```
+
+### Intermediate
+
+Q4. How do you mount a filesystem persistently?
+
+First identify the filesystem UUID:
+
+```
+blkid
+mkdir -p /data
+```
+
+Example `/etc/fstab` entry:
+
+```
+UUID=your-uuid /data ext4 defaults 0 2
+```
+
+Validate carefully before rebooting:
+
+```
+findmnt --verify
+mount -a
+findmnt /data
+```
+
+Q5. What is LVM, and what are PVs, VGs, and LVs?
+
+- PV: Physical Volume
+- VG: Volume Group
+- LV: Logical Volume
+
+```
+pvs
+vgs
+lvs
+```
+
+Q6. How do you extend an LVM logical volume?
+
+Illustrative commands after verifying that the correct storage has been added:
+
+```
+pvcreate /dev/sdb
+vgextend vgdata /dev/sdb
+lvextend -r -L +10G /dev/vgdata/lvdata
+```
+
+These commands assume `/dev/sdb` is a new, unused disk and `/dev/vgdata/lvdata` is the intended LV. Do not run `pvcreate` against a disk containing data you need to preserve.
+
+### Advanced
+
+Q7. `df` reports 100% disk usage, but `du` shows much less. Why?
+
+Investigate open-but-deleted files, filesystem metadata, mount points hiding files, reserved blocks, and filesystem-specific overhead.
+
+```
+lsof +L1
+df -hT
+df -ih
+findmnt
+```
+
+Q8. How would you recover a filesystem that fails to mount?
+
+Check kernel logs, device identity, filesystem type, UUIDs, and storage health before attempting repairs.
+
+```
+journalctl -k -b
+lsblk -f
+blkid
+```
+
+Run filesystem repair tools only on the correct, unmounted filesystem, following the filesystem-specific recovery procedure.
+
+Q9. What is the difference between RAID 0, RAID 1, RAID 5, RAID 6, and RAID 10?
+
+Explain striping, mirroring, parity, usable capacity, fault tolerance, and rebuild risks.
+
+### Expert
+
+Q10. A production database volume is almost full. How would you expand it with minimal downtime?
+
+Explain capacity planning, cloud or SAN expansion, partition and LVM changes, filesystem growth, database-specific considerations, backups, and verification.
+
+Q11. How do you investigate high storage latency when disk space is available?
+
+```
+iostat -xz 1
+iotop
+vmstat 1
+pidstat -d 1
+```
+
+Check latency, queue depth, I/O throughput, saturation, and the workload's read/write pattern. High utilization alone does not prove a disk is the root cause.
+
+## Topic 6. Memory, CPU, performance, and resource limits
+
+### Beginner
+
+Q1. How do you check CPU, memory, load average, and uptime?
+
+```
+top
+free -h
+uptime
+lscpu
+```
+
+Q2. What is the difference between RAM, swap, cache, and buffers?
+
+Explain that Linux uses available memory for caching and that low `free` memory alone does not mean the system is running out of memory.
+
+### Intermediate
+
+Q3. How do you find the process consuming the most CPU or memory?
+
+```
+ps aux --sort=-%cpu | head
+ps aux --sort=-%mem | head
+pidstat 1
+```
+
+Q4. What does load average mean?
+
+Explain runnable tasks and tasks in uninterruptible sleep. Load average is not simply CPU utilization; interpret it alongside CPU core count and I/O metrics.
+
+```
+uptime
+nproc
+vmstat 1
+```
+
+Q5. How do you investigate an out-of-memory event?
+
+```
+journalctl -k | grep -i -E 'oom|out of memory|killed process'
+free -h
+cat /proc/meminfo
+```
+
+### Advanced
+
+Q6. A server has high CPU usage but no single process appears responsible. What do you check?
+
+Investigate per-core utilization, interrupts, softirqs, kernel threads, short-lived processes, and CPU throttling.
+
+```
+mpstat -P ALL 1
+pidstat -u 1
+vmstat 1
+```
+
+Q7. What is the difference between a memory leak and normal Linux page caching?
+
+Explain resident memory, anonymous pages, reclaimable page cache, process memory trends, and controlled reproduction.
+
+Q8. What are cgroups, and how do CPU and memory limits affect processes?
+
+```
+systemd-cgtop
+systemctl show example.service
+cat /proc/PID/status
+```
+
+### Expert
+
+Q9. A server has sufficient RAM, but applications are experiencing severe latency. How do you investigate?
+
+Consider CPU scheduling, NUMA locality, swap activity, storage latency, memory reclaim, cgroup throttling, and lock contention.
+
+Q10. How would you identify whether a performance issue is CPU-bound, memory-bound, I/O-bound, or network-bound?
+
+Develop a diagnosis using `top`, `vmstat`, `iostat`, `pidstat`, `sar`, `ss`, and application metrics, and correlate the measurements with the incident timeline.
+
+## Topic 7. Networking on Linux
+
+This topic covers host-level networking. Detailed protocols, subnetting, routing, DNS, and packet analysis follow in Part 2.
+
+### Beginner
+
+Q1. How do you check a server's IP address and network interfaces?
+
+```
+ip addr show
+ip link show
+hostname -I
+```
+
+Q2. How do you check the default gateway and routing table?
+
+```
+ip route
+ip route get 8.8.8.8
+```
+
+Q3. How do you check listening ports?
+
+```
+ss -lntup
+ss -ant
+```
+
+Q4. How do you test network connectivity?
+
+```
+ping -c 4 8.8.8.8
+curl -Iv https://example.com
+nc -zv server.example.com 443
+```
+
+Each tests a different layer: ICMP reachability, HTTP/TLS connectivity, or TCP port accessibility.
+
+### Intermediate
+
+Q5. How do you configure a static IP on Ubuntu using Netplan?
+
+Inspect the current configuration before editing:
+
+```
+ls -l /etc/netplan/
+cat /etc/netplan/*.yaml
+```
+
+Use `netplan try` when possible to reduce the risk of losing remote connectivity:
+
+```
+netplan generate
+netplan try
+```
+
+Q6. How do you inspect firewall rules?
+
+Ubuntu with UFW:
+
+```
+ufw status verbose
+```
+
+Systems using nftables:
+
+```
+nft list ruleset
+```
+
+Q7. How do you troubleshoot a port that is not reachable remotely?
+
+Check service binding, host firewall, cloud security rules, routing, upstream firewalls, and whether the application is listening on the correct interface.
+
+```
+ss -lntp
+ip route
+nft list ruleset
+tcpdump -ni any port 443
+```
+
+### Advanced
+
+Q8. A server can reach an IP address but cannot resolve domain names. How do you troubleshoot DNS?
+
+```
+cat /etc/resolv.conf
+resolvectl status
+getent hosts example.com
+dig example.com
+```
+
+Q9. How do you diagnose intermittent packet loss?
+
+```
+ping -c 50 target.example.com
+mtr -rw target.example.com
+ip -s link
+```
+
+Correlate the results with interface counters and application metrics; ICMP filtering and rate limiting can distort the results.
+
+### Expert
+
+Q10. A server can establish TCP connections, but users experience intermittent timeouts. How do you investigate?
+
+Examine retransmissions, connection state, MTU, DNS delays, firewall state, upstream load balancers, packet captures, and application response times.
+
+```
+ss -s
+ss -ti
+ip -s link
+tcpdump -ni any host 192.0.2.10
+```
+Replace the documentation IP with the real target address
+
+-=======================================================================
+
+# Complete Linux, Networking & DevOps Interview Question Bank
+
+A comprehensive, difficulty-tiered question bank spanning Linux fundamentals, networking, and DevOps practices. Each question includes practical commands and scenarios drawn from real interview patterns.
+
+
+## 🟢 Beginner: Linux Fundamentals & Basic Networking
+
+### Linux File System & Navigation
+
+**Q1. What is the difference between `ls -l` and `ls -la`?**
+
+`ls -l` shows a long listing of visible files. `ls -la` includes hidden files (dotfiles) as well. The `-a` flag reveals `.bashrc`, `.ssh`, `.gitconfig` and other critical config files that interviews frequently probe.
+
+```bash
+ls -la /home/user     # Shows hidden files
+ls -l /etc            # Standard long listing
+```
+
+**Q2. How do you search for a file named "nginx.conf" across the entire system?**
+
+```bash
+find / -name "nginx.conf" 2>/dev/null
+# Or faster with locate if updatedb is current:
+locate nginx.conf
+```
+
+The `2>/dev/null` suppresses permission-denied noise. A practical follow-up: *"How would you search by content instead of name?"* → `grep -r "server_name" /etc/nginx/`
+
+**Q3. Explain the Linux file system hierarchy. What lives in `/etc`, `/var`, `/proc`, and `/tmp`?**
+
+`/etc` holds system-wide configuration. `/var` contains variable data like logs, spools, and databases. `/proc` is a virtual filesystem exposing kernel and process state. `/tmp` is world-writable and typically cleared on reboot.
+
+### Permissions & Users
+
+**Q4. A directory must let any user create files but only allow the file's owner to delete their own file. Which permission scheme?**
+
+```bash
+chmod 1777 /shared
+```
+
+The sticky bit (1) on a directory restricts deletion to the file's owner, directory owner, or root. This is exactly how `/tmp` works. Plain `777` lets anyone delete anyone's file.
+
+**Q5. A user should run one specific command as root without a password. How?**
+
+```bash
+# Run: visudo
+alice ALL=(root) NOPASSWD: /usr/bin/systemctl restart nginx
+```
+
+A targeted sudoers entry grants exactly one command. Always use `visudo` — it validates syntax before saving, and a broken sudoers file can lock you out entirely.
+
+### Basic Networking
+
+**Q6. Which command shows all open network connections and listening ports?**
+
+```bash
+ss -tulpn
+```
+
+`-t` TCP, `-u` UDP, `-l` listening, `-p` process, `-n` numeric. `ss` is the modern replacement for `netstat` — it reads directly from the kernel via Netlink and is faster.
+
+**Q7. How do you temporarily assign an IP address to an interface?**
+
+```bash
+ip addr add 192.168.1.100/24 dev eth0
+```
+
+This is **temporary** — it modifies live kernel state only. For persistence, you edit NetworkManager, netplan, or ifcfg files depending on the distro.
+
+### Services & Processes
+
+**Q8. A service should start automatically at boot and start now. One command?**
+
+```bash
+systemctl enable --now nginx
+```
+
+`enable` creates the symlink for boot start. `start` runs it now. `--now` does both. This is a classic exam trap — `start` alone does not survive a reboot.
+
+**Q9. How do you find which process is listening on TCP port 8080?**
+
+```bash
+ss -tlnp | grep 8080
+# Or:
+lsof -i :8080
+```
+
+`ss -tlnp` gives TCP, listening only, numeric ports, with owning process (root needed to see other users' processes). `ps aux | grep 8080` only works if the port happens to be on the command line.
+
+
+## 🟡 Intermediate: System Administration & Networking Diagnostics
+
+### Storage & LVM
+
+**Q10. A logical volume must be extended by 5 GB and its ext4 filesystem grown online. Show the commands.**
+
+```bash
+lvextend -L +5G /dev/vg/lv
+resize2fs /dev/vg/lv
+# Or the shortcut:
+lvextend -r -L +5G /dev/vg/lv
+```
+
+LVM grows the block device; the filesystem must be grown separately. `resize2fs` handles ext2/3/4 **online**. XFS uses `xfs_growfs` and **cannot shrink at all**.
+
+**Q11. A filesystem must mount automatically at boot and survive device renaming. How?**
+
+```bash
+# In /etc/fstab:
+UUID=xxxx-xxxx /data ext4 defaults 0 2
+```
+
+Device names like `/dev/sdb1` can change when hardware is added. UUID or LABEL is stable. Always test with `mount -a` before rebooting — a bad fstab entry drops the system into emergency mode.
+
+### Networking Diagnostics
+
+**Q12. Why can a failed `ping` NOT prove a host is down?**
+
+Many hardened hosts and firewalls drop ICMP by policy while still serving TCP applications. A better test:
+
+```bash
+# TCP-based reachability:
+nc -zv host.example.com 443
+# Or:
+tcptraceroute host.example.com 443
+```
+
+`tcptraceroute` traces using TCP SYN segments to get through firewalls that block ICMP/UDP.
+
+**Q13. How do you perform a dry-run route lookup without sending packets?**
+
+```bash
+ip route get 8.8.8.8
+```
+
+This shows exactly which interface and gateway would be used. Useful for debugging routing decisions before they cause production issues.
+
+### systemd & Logging
+
+**Q14. You need the last 50 lines of the systemd journal for nginx, following new output.**
+
+```bash
+journalctl -u nginx -n 50 -f
+```
+
+`-u` filters to a unit, `-n 50` sets line count, `-f` follows. `journalctl` is the modern replacement for tailing `/var/log/messages` and offers structured filtering by unit, priority, time, and boot.
+
+**Q15. A service will not start after a config change. Walk through debugging.**
+
+```bash
+systemctl status badapp.service    # Check status first
+journalctl -u badapp.service -n 50 # Then logs
+```
+
+The status line often gives the exact clue: `status=203/EXEC` means systemd could not execute the binary (wrong path or not executable). Check `ExecStart=` in the unit file, then verify the binary path and permissions.
+
+### Text Processing
+
+**Q16. What is the difference between `grep`, `sed`, and `awk`?**
+
+The one-line summary: `grep` to find, `sed` to change, `awk` to work with fields.
+
+```bash
+# grep: show only error responses
+grep -E " (401|403)$" access.log
+
+# sed: redact the last octet of each IP
+sed -E 's/([0-9]+\.[0-9]+\.[0-9]+)\.[0-9]+/\1.XXX/' access.log
+
+# awk: count requests per client IP
+awk '{count[$1]++} END {for (ip in count) print count[ip], ip}' access.log | sort -rn
+```
+
+### DNS
+
+**Q17. What does the TTL number in a DNS response mean?**
+
+TTL (Time To Live) is the number of seconds a DNS record is cached. A TTL of 3515 means the resolver caches the answer for 3515 seconds before querying upstream again. Short TTLs are used before planned DNS changes to speed propagation.
+
+**Q18. How do you modify a network connection to use 8.8.8.8 as DNS via nmcli?**
+
+```bash
+nmcli con mod "System ens5" ipv4.dns "8.8.8.8"
+nmcli con up "System ens5"    # Reactivate for change to take effect
+cat /etc/resolv.conf           # Verify
+```
+
+
+## 🔴 Advanced: Performance, Troubleshooting & Security
+
+### Disk Space & Inodes
+
+**Q19. A server reports "disk full" but `df -h` shows free space. What is going on?**
+
+Two usual suspects, and a good candidate names both:
+
+**Cause 1: Inode exhaustion.** Millions of tiny files consume inodes even though blocks are free.
+
+```bash
+df -i /    # Check IUse% — if 100%, you're out of inodes
+```
+
+**Cause 2: Deleted file held open.** A process holds a file handle to a deleted file; space won't return until the process restarts.
+
+```bash
+lsof | grep deleted
+```
+
+**Q20. A file was deleted but disk space was not freed. How do you fix it?**
+
+Find the process holding the deleted file:
+
+```bash
+lsof | grep deleted
+```
+
+Options:
+```bash
+# Safest: restart the process
+systemctl restart myservice
+
+# If you can't restart:
+# Truncate the file through /proc (process-dependent, risky)
+> /proc/<PID>/fd/<FD_NUMBER>
+```
+
+The space returns only when the last file descriptor is closed.
+
+### Performance Analysis
+
+**Q21. A filesystem shows high `%util` and long `await` in `iostat`, but application throughput is low. Structured investigation?**
+
+```bash
+iostat -x 1              # Confirm device-level saturation
+iotop -oP                # Find which processes are doing I/O
+pidstat -d 1             # Per-process I/O stats
+```
+
+Check if the device is failing hardware:
+```bash
+dmesg | grep -i "I/O error"
+smartctl -a /dev/nvme1n1
+```
+
+If `await` is high but `%util` is low, the issue may be queue depth or application-side serialization rather than device saturation. Check application logs for read patterns (e.g., reading large JSON templates from disk each request).
+
+**Q22. A process shows a slow memory leak over days but RSS is stable while `resident + swap` grows. How do you differentiate causes?**
+
+Systematic breakdown:
+
+```bash
+# Heap leak: watch heap growth with valgrind or jemalloc stats
+# FD leak: 
+lsof -p <PID> | wc -l
+ls /proc/<PID>/fd | wc -l
+
+# Page cache pressure: 
+cat /proc/meminfo | grep -E "Cached|SwapCached"
+
+# Kernel slab growth:
+slabtop -o
+cat /proc/slabinfo
+```
+
+A heap leak shows growing anonymous memory; an FD leak shows growing `/proc/<PID>/fd` count; page cache pressure is reclaimable; slab growth points to kernel object leaks.
+
+### Security
+
+**Q23. Contrast SELinux and AppArmor. How do you check if a denial was SELinux?**
+
+SELinux uses labels and type enforcement; AppArmor uses path-based profiles. Quick SELinux denial check:
+
+```bash
+ausearch -m avc -ts recent
+# Or:
+dmesg | grep -i "avc:  denied"
+```
+
+Temporary permissive mode for debugging:
+```bash
+setenforce 0    # NEVER in production without approval
+```
+
+**Q24. A production database server is randomly restarted during peak. Logs show OOM killer. How do you protect the DB process?**
+
+Set the OOM score adjustment to -1000 (immune to OOM killer):
+
+```bash
+echo -1000 > /proc/$(pidof postgres)/oom_score_adj
+```
+
+For persistence, configure it in the systemd unit:
+```ini
+[Service]
+OOMScoreAdjust=-1000
+```
+
+This forces the OOM killer to target other processes. The long-term fix is proper memory sizing and resource limits.
+
+### Networking at Scale
+
+**Q25. Explain ephemeral port exhaustion: causes, detection, mitigation.**
+
+Every outbound TCP connection consumes a local ephemeral port (typically 32768–60999). High-throughput services making many short-lived connections can exhaust the range.
+
+**Detection:**
+```bash
+ss -s                              # Summary of socket states
+netstat -an | grep TIME_WAIT | wc -l
+cat /proc/sys/net/ipv4/ip_local_port_range
+```
+
+**Mitigation:**
+- Increase port range: `sysctl -w net.ipv4.ip_local_port_range="1024 65535"`
+- Enable TCP reuse: `sysctl -w net.ipv4.tcp_tw_reuse=1`
+- Use connection pooling in applications
+- Reduce TIME_WAIT duration: `sysctl -w net.ipv4.tcp_fin_timeout=15`
+
+**Q26. How do you capture and analyze network packets for a specific port?**
+
+```bash
+tcpdump -i eth0 -nn port 443 -w capture.pcap
+# Then analyze:
+tcpdump -r capture.pcap -nn
+# Or in Wireshark for deep inspection
+```
+
+For high-traffic servers, use `-c 1000` to limit capture or filter by host:
+```bash
+tcpdump -i eth0 -nn host 10.0.1.50 and port 5432
+```
+
+
+## ⚫ Expert: Architecture, Incident Response & Automation
+
+### Complex Troubleshooting Scenarios
+
+**Q27. A server reports random restarts during peak load. Database logs show abrupt terminations. System logs reveal OOM killer. Walk through resolution.**
+
+**Immediate triage:**
+```bash
+dmesg | grep -i "oom"
+journalctl -k | grep -i "killed process"
+```
+
+**Immediate mitigation:** Protect the database process from OOM killer:
+```bash
+echo -1000 > /proc/<DB_PID>/oom_score_adj
+```
+
+**Short-term:** Identify memory hogs and cap them:
+```bash
+ps aux --sort=-%mem | head -10
+# Apply cgroup limits:
+systemd-cgtop
+```
+
+**Long-term:** Right-size memory, add swap (if appropriate for the workload), implement proactive alerting on memory pressure, and consider vertical scaling. For database workloads specifically, OOM protection is mandatory.
+
+**Q28. Users report major slowdowns. CPU and memory are only 60-70%. Simple commands take minutes. What is the likely cause?**
+
+When CPU and memory look fine but responsiveness collapses, look at **I/O wait** and **swap thrashing**:
+
+```bash
+vmstat 1          # Check 'wa' column (I/O wait)
+free -m           # Check swap usage
+iostat -x 1       # Device-level saturation
+pidstat -d 1      # Per-process disk I/O
+```
+
+If the system is heavily swapping, the CPU is spending cycles managing page movements between RAM and disk, not doing useful work. `vmstat`'s `si` and `so` columns show swap in/out. The fix is adding RAM or reducing memory pressure from the offending application.
+
+**Q29. Production servers stop responding. SSH unreliable. Root filesystem is 100% full. Recovery plan?**
+
+**Cannot SSH in? Use console/IPMI/cloud serial console.**
+
+Once in:
+```bash
+# Find what filled the disk
+du -hx --max-depth=1 / | sort -rh | head -20
+```
+
+**Common culprits:**
+- `/var/log` — unrotated logs
+- `/tmp` — application temp files
+- Deleted files held open (`lsof | grep deleted`)
+
+**Quick wins if no time to investigate:**
+```bash
+# Truncate (not delete) large logs
+> /var/log/huge.log
+# Clean package cache
+apt clean  # or yum clean all
+```
+
+**After recovery:** Set up log rotation, disk usage alerts at 80%, and `logrotate` monitoring.
+
+### DevOps Architecture
+
+**Q30. Explain Blue-Green vs Canary deployment. When would you choose each?**
+
+**Blue-Green:** Two identical environments. Traffic switches instantly. Fast rollback (switch back). Use for **risky releases** where you want a clean cutover and immediate revert capability.
+
+**Canary:** New version released to a small percentage of users. Gradual rollout based on metrics. Use for **continuous experimentation** where you want to validate with real traffic before full exposure.
+
+**Kubernetes implementation:**
+```yaml
+# Canary: deploy new version with replicas: 1, old with replicas: 9
+# Blue-Green: two deployments, switch Service selector
+```
+
+**Q31. How do you debug a failed Kubernetes deployment in production?**
+
+Structured approach:
+
+```bash
+kubectl get pods -o wide                    # Check status
+kubectl describe pod <pod-name>             # Check events
+kubectl logs <pod-name> --previous          # Check crash logs
+kubectl get events --sort-by=.lastTimestamp # Cluster events
+```
+
+**Immediate action:** Rollback first, investigate second.
+```bash
+kubectl rollout undo deployment/myapp
+```
+
+**Then diagnose:** Compare configs, validate environment variables, check resource limits, verify image tags.
+
+**Q32. How do you manage Terraform state file conflicts in a team?**
+
+Remote backend with state locking:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state"
+    key            = "prod/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
+  }
+}
+```
+
+DynamoDB provides locking — only one `terraform apply` can run at a time. Separate workspaces for dev/staging/prod. **Never** edit state manually. Use `terraform import` to bring existing infrastructure under management.
+
+**Q33. How do you handle secrets across multiple environments securely?**
+
+Never hardcode secrets. Options in order of preference:
+
+1. **HashiCorp Vault** — dynamic secrets, audit logging
+2. **Cloud-native** — AWS Secrets Manager, Azure Key Vault, GCP Secret Manager
+3. **Kubernetes Secrets** — encrypted at rest, combined with External Secrets Operator
+4. **CI/CD native** — Jenkins Credentials, GitHub Secrets
+
+**IAM roles instead of static credentials** is the single most impactful practice. Applications should authenticate via instance profiles or service accounts.
+
+### Automation & Scripting
+
+**Q34. How do you write a bash script that fails safely?**
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+```
+
+- `-e` exits on first command failure
+- `-u` treats unset variables as errors (not empty strings)
+- `-o pipefail` makes pipelines fail if **any** stage fails, not just the last
+
+Then quote your variables: `"$var"`. An unquoted empty variable that contains spaces is how scripts delete the wrong files. The difference between a junior and senior script is not cleverness — it is that the senior one **stops at the first sign of trouble** instead of charging ahead with a bad value.
+
+**Q35. How do you find and kill zombie processes?**
+
+Zombies are defunct processes whose parent hasn't reaped their exit status:
+
+```bash
+ps aux | awk '$8 ~ /^Z/ {print $2, $11}'
+```
+
+**You cannot kill a zombie directly.** You must either:
+1. Signal the parent to reap: `kill -CHLD <PPID>`
+2. Kill the parent (if safe), which orphans the zombie to init, which will reap it
+
+If zombies persist, the parent application has a bug — it's not calling `wait()` on child processes. This is an application-level fix, not a system-level one.
+
+**Q36. What is the difference between monitoring and observability?**
+
+**Monitoring** tracks known metrics to detect expected failures ("known knowns"). Thresholds and alerts.
+
+**Observability** is the ability to infer internal system behavior from emitted outputs (logs, metrics, traces) and ask **new questions** to understand unexpected behaviors ("unknown unknowns"). Unlike monitoring, observability enables debugging novel failure modes by correlating signals across services.
+
+The practical distinction: monitoring tells you **what** is wrong; observability helps you understand **why**.
+
+### CI/CD & Security
+
+**Q37. How do you secure a Jenkins pipeline?**
+
+Multiple layers:
+
+- **RBAC** — role-based access, least privilege
+- **Credential management** — Jenkins Credentials Plugin, never in Jenkinsfiles
+- **Pipeline security** — disable Groovy sandbox bypasses, use declarative pipelines
+- **Webhook authentication** — shared secrets for Git webhooks
+- **Audit logging** — track who changed what and when
+- **Agent isolation** — ephemeral agents, no persistent secrets on agents
+
+**Q38. How do you implement segregation of duties in release workflows?**
+
+Code review approvals from **different individuals** than the author. Separate build and deploy permissions. Approval gates for production deployments.
+
+```yaml
+# GitHub branch protection:
+# - Require pull request reviews
+# - Dismiss stale reviews
+# - Require status checks
+# - Restrict who can push
+```
+
+Developers should **not** be able to merge and deploy their own code without review. This is both a security control and a compliance requirement (SOC 2, ISO 27001).
+
+**Q39. How do you automate infrastructure rollback in case of failure?**
+
+Three approaches depending on tooling:
+
+**Terraform:** State is versioned in S3 with versioning enabled. `terraform apply` with previous state file.
+
+**Helm:** `helm rollback <release> <revision>` — Helm keeps revision history.
+
+**GitOps (ArgoCD/Flux):** Revert the Git commit. ArgoCD detects drift and syncs back to the known-good state.
+
+The key principle: **rollback must be automated and tested**, not a manual fire drill. If rollback takes 30 minutes of human decision-making, you have a reliability problem.
+
+**Q40. What metrics do you monitor in CI/CD pipelines to measure success?**
+
+The four DORA metrics:
+
+1. **Deployment Frequency** — how often you deploy to production
+2. **Lead Time for Changes** — commit to production
+3. **Change Failure Rate** — percentage of deployments causing failures
+4. **Mean Time To Recovery (MTTR)** — time to restore service
+
+Plus pipeline-specific metrics: pipeline success rate, build duration, flaky test rate. These separate **throughput** (1 & 2) from **stability** (3 & 4).
+
+
+### Quick Reference: Command Density Map
+
+| Domain | Essential Commands |
+|--------|-------------------|
+| **Process/Resource** | `top`, `htop`, `ps aux`, `vmstat`, `pidstat`, `iotop` |
+| **Disk/Storage** | `df -h`, `df -i`, `du -sh`, `lsof`, `iostat -x` |
+| **Network** | `ss -tulpn`, `ip a`, `ip route get`, `tcpdump`, `nmcli` |
+| **Services** | `systemctl`, `journalctl -u`, `systemd-cgtop` |
+| **Text** | `grep -E`, `sed -E`, `awk`, `jq` |
+| **Containers** | `kubectl describe/logs/events`, `docker inspect` |
+| **IaC** | `terraform state`, `terraform import`, `helm rollback` |
+
+This bank covers the progression from "what does `ls -la` do" to "how do you architect rollback automation." The senior-level questions are not about knowing more commands — they are about **knowing which command to reach for under pressure** and **understanding why the obvious answer is wrong**..
