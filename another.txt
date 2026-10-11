@@ -1,0 +1,165 @@
+Here is an additional set of interview questions **without answers**, covering Linux, Networking, and DevOps. They are organized by difficulty and topic, with practical commands and scenarios where relevant.
+
+---
+
+## 🟢 Beginner
+
+### Linux Basics
+1. What does the `pwd` command do? Give an example.
+2. How do you create a new directory named `project` and immediately enter it?
+3. What is the difference between `cp` and `mv`?
+4. How do you display the first 10 lines of a file? How about the last 5 lines?
+5. What command shows the current date and time in `YYYY-MM-DD` format?
+6. How do you count the number of lines in a file?
+7. What does `chmod 755 script.sh` mean? Who can do what?
+8. How do you change the owner of a file to user `alice` and group `developers`?
+9. What is the purpose of the `/etc/passwd` file?
+10. How do you check the available disk space on all mounted filesystems?
+
+### Basic Networking
+11. What command shows your IP address and network interfaces?
+12. How do you test if a remote host is reachable?
+13. What is the difference between `localhost` and `127.0.0.1`?
+14. How do you check which DNS server your system is using?
+15. What port does HTTP use by default? HTTPS?
+16. How do you display the routing table?
+17. What command shows all active network connections?
+18. How do you download a file from the internet using the command line?
+19. What is the purpose of the `hostname` command?
+20. How do you temporarily set an environment variable in bash?
+
+### DevOps Basics
+21. What is version control? Name one popular tool.
+22. What is the difference between `git pull` and `git fetch`?
+23. How do you check the status of a Git repository?
+24. What is a CI/CD pipeline?
+25. What is a Docker container? How is it different from a virtual machine?
+26. How do you list all running Docker containers?
+27. What is infrastructure as code? Give an example tool.
+28. What is a web server? Name two common ones.
+29. How do you check if a service is running on a Linux system?
+30. What is the purpose of a load balancer?
+
+---
+
+## 🟡 Intermediate
+
+### Linux System Administration
+31. How do you find all files in `/var/log` that are larger than 100MB?
+32. A process is consuming 100% CPU. How do you identify it and stop it?
+33. How do you schedule a script to run every day at 2:30 AM?
+34. What is the difference between a hard link and a soft link? Give commands to create each.
+35. How do you change the default runlevel/target in systemd?
+36. How do you add a new user and set their password in one step?
+37. What is `umask`? How does it affect newly created files?
+38. How do you check the memory usage of a specific process?
+39. How do you find which package provides a particular command (e.g., `netstat`)?
+40. How do you view the boot log messages from the last boot?
+
+### Networking Diagnostics
+41. How do you trace the route packets take to a destination?
+42. What does `tcpdump -i eth0 port 80` do?
+43. How do you check if a specific port is open on a remote host?
+44. What is the difference between `ss` and `netstat`?
+45. How do you flush the DNS cache on Linux?
+46. How do you capture and analyze HTTP traffic on port 8080?
+47. What is the purpose of the `iptables` command? Give an example rule.
+48. How do you configure a static IP address using `nmcli`?
+49. How do you check the ARP cache?
+50. What is a subnet mask? How do you calculate the network address for `192.168.1.10/24`?
+
+### DevOps Practices
+51. How do you write a simple Dockerfile for a Python application?
+52. What is the difference between `COPY` and `ADD` in a Dockerfile?
+53. How do you persist data in Docker?
+54. What is a Kubernetes Pod? How is it different from a container?
+55. How do you expose a Kubernetes deployment to the internet?
+56. What is a Terraform provider? Give an example.
+57. How do you manage secrets in a CI/CD pipeline?
+58. What is a blue-green deployment?
+59. How do you roll back a deployment in Kubernetes?
+60. What is the purpose of a `.gitignore` file?
+
+---
+
+## 🔴 Advanced
+
+### Performance & Troubleshooting
+61. A server is slow. `top` shows high `%wa` (I/O wait). What steps do you take to diagnose?
+62. How do you identify which process is causing heavy disk I/O?
+63. A filesystem is full but `df -h` shows free space. What are possible causes?
+64. How do you find and kill a zombie process?
+65. What is the difference between `buff/cache` and `available` memory in `free -h`?
+66. How do you analyze a system crash dump?
+67. How do you tune kernel parameters for a high-traffic web server?
+68. What is `swappiness`? How do you change it?
+69. How do you debug a memory leak in a running application?
+70. How do you use `strace` to troubleshoot a hanging process?
+
+### Networking & Security
+71. How do you set up a firewall to allow only SSH, HTTP, and HTTPS?
+72. What is the difference between a stateful and stateless firewall?
+73. How do you configure NAT on a Linux router?
+74. How do you troubleshoot a DNS resolution failure?
+75. What is the difference between `iptables` and `nftables`?
+76. How do you set up a VPN server on Linux?
+77. How do you capture packets and analyze them with Wireshark?
+78. What is ARP spoofing? How do you detect it?
+79. How do you implement rate limiting with `iptables`?
+80. How do you secure SSH access on a production server?
+
+### DevOps & Automation
+81. How do you implement a canary release in Kubernetes?
+82. What is the difference between `kubectl apply` and `kubectl create`?
+83. How do you manage Terraform state in a team environment?
+84. How do you write a Jenkins pipeline that builds, tests, and deploys?
+85. What is GitOps? How does it work with tools like ArgoCD?
+86. How do you monitor a Kubernetes cluster? Name key metrics.
+87. How do you autoscale a deployment based on CPU usage?
+88. How do you handle database migrations in a CI/CD pipeline?
+89. How do you implement infrastructure testing (e.g., with Terratest)?
+90. How do you manage multiple environments (dev, staging, prod) with Terraform workspaces?
+
+---
+
+## ⚫ Expert
+
+### Complex Incident Response
+91. A production database is randomly restarted during peak hours. Logs show OOM killer. Walk through your investigation and resolution.
+92. Users report major slowdowns, but CPU and memory are only 60% utilized. What could be the cause? How do you diagnose?
+93. A critical server is unresponsive, and SSH is unreliable. The root filesystem is 100% full. How do you recover?
+94. You suspect a DDoS attack. What immediate steps do you take? How do you mitigate it?
+95. A microservice is intermittently failing. Logs show timeouts, but no errors in the service itself. How do you trace the root cause?
+96. How do you perform a post-mortem for a major outage? What information do you collect?
+97. A deployment introduced a bug that corrupts data. How do you roll back safely?
+98. How do you design a disaster recovery plan for a multi-tier application?
+99. How do you handle a security breach on a production server?
+100. How do you debug a network partition in a distributed system?
+
+### Architecture & Strategy
+101. Compare monolithic vs microservices architecture. When would you choose each?
+102. How do you design a highly available, fault-tolerant system on AWS?
+103. What is the CAP theorem? How does it apply to distributed databases?
+104. How do you implement a service mesh? What problems does it solve?
+105. How do you manage secrets across multiple cloud providers?
+106. How do you design a CI/CD pipeline for a monorepo?
+107. How do you implement zero-downtime deployments for a stateful application?
+108. How do you architect a multi-region active-active setup?
+109. How do you ensure compliance (SOC 2, ISO 27001) in your DevOps processes?
+110. How do you measure and improve developer productivity?
+
+### Automation & Tooling
+111. How do you write a custom Terraform provider?
+112. How do you extend Kubernetes with Custom Resource Definitions (CRDs)?
+113. How do you implement a self-healing infrastructure?
+114. How do you use Ansible to configure a fleet of servers?
+115. How do you automate security scanning in a CI/CD pipeline?
+116. How do you implement infrastructure drift detection?
+117. How do you build a custom monitoring solution with Prometheus and Grafana?
+118. How do you use eBPF for observability and security?
+119. How do you automate rollback of infrastructure changes?
+120. How do you implement chaos engineering in production?
+
+---
+
+These questions are designed to probe depth of understanding, practical experience, and problem-solving ability. They can be used for mock interviews or self-assessment.
